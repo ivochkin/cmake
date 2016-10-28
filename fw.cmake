@@ -18,6 +18,19 @@ function(fw_cxx_flags)
   endif()
 endfunction()
 
+macro(fw_c_cxx_flags)
+  fw_c_flags(${ARGN})
+  fw_cxx_flags(${ARGN})
+endmacro()
+
+macro(fw_exe_linker_flags)
+  if("${CMAKE_EXE_LINKER_FLAGS}" STREQUAL "")
+    set(CMAKE_EXE_LINKER_FLAGS "${ARGN}")
+  else()
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${ARGN}")
+  endif()
+endmacro()
+
 function(fw_version_from_git out_version out_major out_minor out_patch)
   if(NOT GIT_FOUND)
     message(FATAL_ERROR "Can not get version - 'git' is not installed")
@@ -130,3 +143,164 @@ int main()
     RUN_OUTPUT_VARIABLE guard_size)
   set(${out} ${guard_size} PARENT_SCOPE)
 endfunction()
+
+function(fw_whoami out_var)
+  if(NOT UNIX)
+    message(FATAL_ERROR "Platform is not supported")
+  endif()
+  execute_process(
+    COMMAND whoami OUTPUT_VARIABLE temp OUTPUT_STRIP_TRAILING_WHITESPACE)
+  set(${out_var} ${temp} PARENT_SCOPE)
+endfunction()
+
+function(fw_uname out_var)
+  if(NOT UNIX)
+    message(FATAL_ERROR "Platform is not supported")
+  endif()
+  execute_process(
+    COMMAND uname -n OUTPUT_VARIABLE temp OUTPUT_STRIP_TRAILING_WHITESPACE)
+  set(${out_var} ${temp} PARENT_SCOPE)
+endfunction()
+
+function(fw_date out_var)
+  if(NOT UNIX)
+    message(FATAL_ERROR "Platform is not supported")
+  endif()
+  execute_process(
+     COMMAND date +%Y.%m.%d OUTPUT_VARIABLE temp OUTPUT_STRIP_TRAILING_WHITESPACE)
+  set(${out_var} ${temp} PARENT_SCOPE)
+endfunction()
+
+function(_fw_deb_version)
+  list(APPEND params
+    VERSION_FILE
+    VERSION_MAJOR
+    VERSION_MINOR
+    VERSION_PATCH
+    VERSION_BUILD
+    OUT
+  )
+
+  list(APPEND options
+    GENERATE_VERSION_BUILD
+  )
+
+  cmake_parse_arguments("FW_DEB_VER" "${options}" "${params}" "" ${ARGN})
+
+  if(NOT "${FW_DEB_VER_VERSION_FILE}" STREQUAL "")
+    fw_version_from_file(${FW_DEB_VER_VERSION_FILE} _ FW_DEB_VER_VERSION_MAJOR FW_DEB_VER_VERSION_MINOR FW_DEB_VER_VERSION_PATCH)
+  endif()
+
+  if(${FW_DEB_VER_GENERATE_VERSION_BUILD} AND "${FW_DEB_VER_VERSION_BUILD}" STREQUAL "")
+    fw_whoami(user)
+    fw_uname(host)
+    fw_date(date)
+    set(FW_DEB_VER_VERSION_BUILD "${user}+${host}.${date}")
+  endif()
+
+  set(ver_out "${FW_DEB_VER_VERSION_MAJOR}.${FW_DEB_VER_VERSION_MINOR}.${FW_DEB_VER_VERSION_PATCH}")
+  if(NOT "${FW_DEB_VER_VERSION_BUILD}" STREQUAL "")
+    set(ver_out "${ver_out}.${FW_DEB_VER_VERSION_BUILD}")
+  endif()
+  set(${FW_DEB_VER_OUT} "${ver_out}" PARENT_SCOPE)
+endfunction()
+
+function(fw_deb)
+  list(APPEND params
+    NAME
+    VERSION_FILE
+    VERSION_MAJOR
+    VERSION_MINOR
+    VERSION_PATCH
+    VERSION_BUILD
+    PREINST
+    POSTINST
+    PRERM
+    POSTRM
+    CONFFILES
+    DESCRIPTION
+    VENDOR
+    CONTACT
+  )
+
+  list(APPEND options
+    GENERATE_VERSION_BUILD
+  )
+
+  list(APPEND mulparams
+    DEPENDS
+    CONFLICTS
+    RECOMMENDS
+  )
+
+  cmake_parse_arguments("FW_DEB" "${options}" "${params}" "${mulparams}" ${ARGN})
+
+  if("${FW_DEB_DESCRIPTION}" STREQUAL "")
+    set(FW_DEB_DESCRIPTION "package ${FW_DEB_NAME}, provider by ${FW_DEB_VENDOR}")
+  endif()
+
+  if("${FW_DEB_VENDOR}" STREQUAL "")
+    fw_whoami(user)
+    set(FW_DEB_VENDOR "${user}")
+  endif()
+
+  if("${FW_DEB_CONTACT}" STREQUAL "")
+    fw_whoami(user)
+    fw_uname(host)
+    set(FW_DEB_CONTACT "${user}@${host}")
+  endif()
+
+  fw_debian_architecture(deb_arch)
+  if(${FW_DEB_GENERATE_VERSION_BUILD})
+    _fw_deb_version(
+      VERSION_FILE "${FW_DEB_VERSION_FILE}"
+      VERSION_MAJOR "${FW_DEB_VERSION_MAJOR}"
+      VERSION_MINOR "${FW_DEB_VERSION_MINOR}"
+      VERSION_PATCH "${FW_DEB_VERSION_PATCH}"
+      VERSION_BUILD "${FW_DEB_VERSION_BUILD}"
+      GENERATE_VERSION_BUILD
+      OUT deb_version
+    )
+  else()
+    _fw_deb_version(
+      VERSION_FILE "${FW_DEB_VERSION_FILE}"
+      VERSION_MAJOR "${FW_DEB_VERSION_MAJOR}"
+      VERSION_MINOR "${FW_DEB_VERSION_MINOR}"
+      VERSION_PATCH "${FW_DEB_VERSION_PATCH}"
+      VERSION_BUILD "${FW_DEB_VERSION_BUILD}"
+      OUT deb_version
+    )
+  endif()
+
+  set(CPACK_PACKAGE_NAME "${FW_DEB_NAME}" PARENT_SCOPE)
+  set(CPACK_GENERATOR "DEB" PARENT_SCOPE)
+  set(CPACK_BINARY_DEB "ON" PARENT_SCOPE)
+  set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "${deb_arch}" PARENT_SCOPE)
+  set(CPACK_PACKAGE_VERSION "${deb_version}" PARENT_SCOPE)
+  set(CPACK_PACKAGE_FILE_NAME "${FW_DEB_NAME}_${deb_version}_${deb_arch}" PARENT_SCOPE)
+  set(CPACK_PACKAGE_VERSION_MAJOR "${FW_DEB_VERSION_MAJOR}" PARENT_SCOPE)
+  set(CPACK_PACKAGE_VERSION_MINOR "${FW_DEB_VERSION_MINOR}" PARENT_SCOPE)
+  set(CPACK_PACKAGE_VERSION_PATCH "${FW_DEB_VERSION_PATCH}" PARENT_SCOPE)
+  set(CPACK_DEBIAN_PACKAGE_CONFLICTS "${FW_DEB_CONFLICTS}" PARENT_SCOPE)
+  set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${FW_DEB_PREINST};${FW_DEB_POSTINST};${FW_DEB_PRERM};${FW_DEB_POSTRM};${FW_DEB_CONFFILES}" PARENT_SCOPE)
+  set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "${FW_DEB_DESCRIPTION}" PARENT_SCOPE)
+  set(CPACK_DEBIAN_PACKAGE_DEPENDS "${FW_DEB_DEPENDS}" PARENT_SCOPE)
+  set(CPACK_DEBIAN_PACKAGE_RECOMMENDS "${FW_DEB_RECOMMENDS}" PARENT_SCOPE)
+  set(CPACK_PACKAGE_VENDOR "${FW_DEB_VENDOR}" PARENT_SCOPE)
+  set(CPACK_PACKAGE_CONTACT "${FW_DEB_CONTACT}" PARENT_SCOPE)
+endfunction()
+
+# Install "sympath -> filepath" symlink
+macro(fw_install_symlink filepath sympath)
+  get_filename_component(symname ${sympath} NAME)
+  get_filename_component(installdir ${sympath} PATH)
+
+  execute_process(
+    COMMAND "${CMAKE_COMMAND}" -E create_symlink
+    ${filepath}
+    ${CMAKE_CURRENT_BINARY_DIR}/${symname})
+  install(
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/${symname}
+    DESTINATION ${installdir}
+    ${ARGN})
+endmacro()

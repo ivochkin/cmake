@@ -15,8 +15,15 @@ Functions:
 
 * fw_c_flags
 * fw_cxx_flags
+* fw_c_cxx_flags
+* fw_exe_linker_flags
 * fw_version_from_git
 * fw_version_from_file
 * fw_page_size
 * fw_stack_size
 * fw_guard_size
+* fw_whoami
+* fw_uname
+* fw_date
+* fw_deb
+* fw_install_symlink
