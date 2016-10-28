@@ -1,2 +1,21 @@
 # cmake
 Top-level cmake directory to share across c/c++ projects
+
+# Find modules
+A bunch of Find modules, handwritten or borrowed from other projects, including:
+
+* libuv
+* http-parser
+
+fw.cmake
+========
+Contains a bunch of useful functions that extend CMake functionality and/or provide handy shortcuts to common commands.
+
+Functions:
+
+* fw_c_flags
+* fw_version_from_git
+* fw_version_from_file
+* fw_page_size
+* fw_stack_size
+* fw_guard_size
