@@ -27,3 +27,4 @@ Functions:
 * fw_date
 * fw_deb
 * fw_install_symlink
+* fw_exports

@@ -304,3 +304,65 @@ macro(fw_install_symlink filepath sympath)
     DESTINATION ${installdir}
     ${ARGN})
 endmacro()
+
+function(fw_exports target exports_file)
+  if(NOT UNIX)
+    message(FATAL_ERROR "Platform is not supported")
+  endif()
+  if(NOT(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
+    message(FATAL_ERROR "Compiler is not supported")
+  endif()
+  set(make_exports_sh_content "#!/usr/bin/env bash
+
+compiler=$1
+library=$2
+
+case \"$compiler\" in
+\"clang\")
+  while read -r; do
+    if [ -n \"$REPLY\" ]; then
+      echo \"_$REPLY\"
+    fi
+  done
+;;
+\"gcc\")
+  echo \"$library {\"
+  echo \"  global:\"
+  while read -r; do
+    if [ -n \"$REPLY\" ]; then
+      echo \"    $REPLY;\"
+    fi
+  done
+  echo \"  local: *;\"
+  echo \"};\"
+;;
+*)
+  >&2 echo \"did not understand being called with \\\"$1\\\"\"
+  exit 1
+;;
+esac
+")
+  set(make_exports_sh "${CMAKE_BINARY_DIR}/make_exports.sh")
+  if(NOT EXISTS ${make_exports_sh})
+    file(WRITE ${make_exports_sh} "${make_exports_sh_content}")
+  endif()
+  if(NOT EXISTS ${exports_file} AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${exports_file}")
+    set(exports_file "${CMAKE_CURRENT_SOURCE_DIR}/${exports_file}")
+  endif()
+  set(dot_version_file ${CMAKE_CURRENT_BINARY_DIR}/${target}.version)
+  set(dot_map_file ${CMAKE_CURRENT_BINARY_DIR}/${target}.map)
+  execute_process(
+    COMMAND bash ${make_exports_sh} gcc ${target}
+    INPUT_FILE ${exports_file}
+    OUTPUT_FILE ${dot_version_file})
+  execute_process(
+    COMMAND bash ${make_exports_sh} clang ${target}
+    INPUT_FILE ${exports_file}
+    OUTPUT_FILE ${dot_map_file})
+  if(CMAKE_COMPILER_IS_GNUCXX)
+    set_target_properties(${target} PROPERTIES LINK_FLAGS "-Wl,--version-script=${dot_version_file}")
+  endif()
+  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    set_target_properties(${target} PROPERTIES LINK_FLAGS "-Wl,-exported_symbols_list,${dot_map_file}")
+  endif()
+endfunction()
