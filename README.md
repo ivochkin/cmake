@@ -26,6 +26,7 @@ Functions:
 * fw_whoami
 * fw_uname
 * fw_date
+* fw_time
 * fw_deb
 * fw_install_symlink
 * fw_exports

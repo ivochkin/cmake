@@ -171,6 +171,15 @@ function(fw_date out_var)
   set(${out_var} ${temp} PARENT_SCOPE)
 endfunction()
 
+function(fw_time out_var)
+  if(NOT UNIX)
+    message(FATAL_ERROR "Platform is not supported")
+  endif()
+  execute_process(
+     COMMAND date +%X OUTPUT_VARIABLE temp OUTPUT_STRIP_TRAILING_WHITESPACE)
+  set(${out_var} ${temp} PARENT_SCOPE)
+endfunction()
+
 function(_fw_deb_version)
   list(APPEND params
     VERSION_FILE
