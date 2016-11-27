@@ -244,8 +244,8 @@ function(fw_deb)
 
   cmake_parse_arguments("FW_DEB" "${options}" "${params}" "${mulparams}" ${ARGN})
 
-  if("${FW_DEB_DESCRIPTION}" STREQUAL "")
-    set(FW_DEB_DESCRIPTION "package ${FW_DEB_NAME}, provider by ${FW_DEB_VENDOR}")
+  if("${FW_DEB_NAME}" STREQUAL "")
+    set(FW_DEB_NAME ${CMAKE_PROJECT_NAME})
   endif()
 
   if("${FW_DEB_VENDOR}" STREQUAL "")
@@ -259,7 +259,30 @@ function(fw_deb)
     set(FW_DEB_CONTACT "${user}@${host}")
   endif()
 
+  if("${FW_DEB_DESCRIPTION}" STREQUAL "")
+    fw_date(date)
+    fw_time(time)
+    list(APPEND props "Configured at ${date} ${time}")
+    list(APPEND props "Install prefix: ${CMAKE_INSTALL_PREFIX}")
+    list(APPEND props "CMake build type - '${CMAKE_BUILD_TYPE}'")
+    list(APPEND props "CMake version - ${CMAKE_VERSION}")
+    list(APPEND props "Compiled on ${CMAKE_SYSTEM}")
+    list(APPEND props "C compiler ${CMAKE_C_COMPILER}")
+    list(APPEND props "C compiler flags: ${CMAKE_C_FLAGS}")
+    list(APPEND props "C compiler flags (Debug): ${CMAKE_C_FLAGS_DEBUG}")
+    list(APPEND props "C compiler flags (Release): ${CMAKE_C_FLAGS_RELEASE}")
+    list(APPEND props "C compiler flags (RelWithDebInfo): ${CMAKE_C_FLAGS_RELWITHDEBINFO}")
+    list(APPEND props "C++ compiler ${CMAKE_CXX_COMPILER}")
+    list(APPEND props "C++ compiler flags: ${CMAKE_CXX_FLAGS}")
+    list(APPEND props "C++ compiler flags (Debug): ${CMAKE_CXX_FLAGS_DEBUG}")
+    list(APPEND props "C++ compiler flags (Release): ${CMAKE_CXX_FLAGS_RELEASE}")
+    list(APPEND props "C++ compiler flags (RelWithDebInfo): ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
+    string(REPLACE ";" "\n  " description "${props}")
+    set(FW_DEB_DESCRIPTION "Package '${FW_DEB_NAME}'\n  ${description}")
+  endif()
+
   fw_debian_architecture(deb_arch)
+
   if(${FW_DEB_GENERATE_VERSION_BUILD})
     _fw_deb_version(
       VERSION_FILE "${FW_DEB_VERSION_FILE}"
@@ -297,6 +320,7 @@ function(fw_deb)
   set(CPACK_DEBIAN_PACKAGE_RECOMMENDS "${FW_DEB_RECOMMENDS}" PARENT_SCOPE)
   set(CPACK_PACKAGE_VENDOR "${FW_DEB_VENDOR}" PARENT_SCOPE)
   set(CPACK_PACKAGE_CONTACT "${FW_DEB_CONTACT}" PARENT_SCOPE)
+  set(CPACK_PACKAGING_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}" PARENT_SCOPE)
 endfunction()
 
 # Install "sympath -> filepath" symlink
