@@ -27,6 +27,8 @@ Functions:
 * fw_uname
 * fw_date
 * fw_time
+* fw_target_architecture
+* fw_debian_architecture
 * fw_deb
 * fw_install_symlink
 * fw_exports
