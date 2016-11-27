@@ -7,6 +7,7 @@ A bunch of Find modules, handwritten or borrowed from other projects, including:
 * libuv (https://github.com/libuv/libuv)
 * http-parser (https://github.com/nodejs/http-parser)
 * yaml-cpp (https://github.com/jbeder/yaml-cpp)
+* dfk (https://github.com/ivochkin/dfk) + dfkcpp (C++ bindings)
 
 ## fw.cmake
 Contains a bunch of useful functions that extend CMake functionality and/or provide handy shortcuts to common commands.
