@@ -314,6 +314,7 @@ function(fw_debian_architecture output_var)
 endfunction()
 
 function(_fw_deb_version)
+  set(params "")
   list(APPEND params
     VERSION_FILE
     VERSION_MAJOR
@@ -323,6 +324,7 @@ function(_fw_deb_version)
     OUT
   )
 
+  set(options "")
   list(APPEND options
     GENERATE_VERSION_BUILD
   )
@@ -348,6 +350,7 @@ function(_fw_deb_version)
 endfunction()
 
 function(fw_deb)
+  set(params "")
   list(APPEND params
     NAME
     VERSION_FILE
@@ -365,10 +368,12 @@ function(fw_deb)
     CONTACT
   )
 
+  set(options "")
   list(APPEND options
     GENERATE_VERSION_BUILD
   )
 
+  set(mulparams "")
   list(APPEND mulparams
     DEPENDS
     CONFLICTS
