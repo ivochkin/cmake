@@ -9,6 +9,7 @@ A bunch of Find modules, handwritten or borrowed from other projects, including:
 * yaml-cpp (https://github.com/jbeder/yaml-cpp)
 * pqxx (https://github.com/jtv/libpqxx)
 * dfk (https://github.com/ivochkin/dfk) + dfkcpp (C++ bindings)
+* memcached (https://github.com/memcached/memcached)
 
 ## fw.cmake
 Contains a bunch of useful functions that extend CMake functionality and/or provide handy shortcuts to common commands.
