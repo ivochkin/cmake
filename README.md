@@ -16,21 +16,22 @@ Contains a bunch of useful functions that extend CMake functionality and/or prov
 
 Functions:
 
-* fw_c_flags
-* fw_cxx_flags
-* fw_c_cxx_flags
-* fw_exe_linker_flags
-* fw_version_from_git
-* fw_version_from_file
-* fw_page_size
-* fw_stack_size
-* fw_guard_size
-* fw_whoami
-* fw_uname
-* fw_date
-* fw_time
-* fw_target_architecture
-* fw_debian_architecture
-* fw_deb
-* fw_install_symlink
-* fw_exports
+* `fw_c_flags`
+* `fw_cxx_flags`
+* `fw_c_cxx_flags`
+* `fw_exe_linker_flags`
+* `fw_version_from_git`
+* `fw_version_from_file`
+* `fw_page_size`
+* `fw_stack_size`
+* `fw_guard_size`
+* `fw_whoami`
+* `fw_uname`
+* `fw_date`
+* `fw_time`
+* `fw_target_architecture`
+* `fw_debian_architecture`
+* `fw_deb`
+* `fw_install_symlink`
+* `fw_exports`
+* `fw_c99`

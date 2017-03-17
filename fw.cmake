@@ -537,3 +537,12 @@ esac
     set_target_properties(${target} PROPERTIES LINK_FLAGS "-Wl,-exported_symbols_list,${dot_map_file}")
   endif()
 endfunction()
+
+function(fw_c99)
+  if(CMAKE_VERSION VERSION_LESS "3.1")
+    fw_c_flags("--std=c99")
+    set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} PARENT_SCOPE)
+  else()
+    set(CMAKE_C_STANDARD 99 PARENT_SCOPE)
+  endif()
+endfunction()
