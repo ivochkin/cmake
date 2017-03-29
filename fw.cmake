@@ -546,3 +546,10 @@ function(fw_c99)
     set(CMAKE_C_STANDARD 99 PARENT_SCOPE)
   endif()
 endfunction()
+
+function(fw_default_build_type type)
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE ${type} CACHE STRING
+    "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel." FORCE PARENT_SCOPE)
+endif()
+endfunction()
