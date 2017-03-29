@@ -35,4 +35,5 @@ Functions:
 * `fw_install_symlink`
 * `fw_exports`
 * `fw_c99`
+* `fw_c11`
 * `fw_default_build_type`
