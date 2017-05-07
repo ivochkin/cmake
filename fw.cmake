@@ -144,6 +144,47 @@ int main()
   set(${out} ${guard_size} PARENT_SCOPE)
 endfunction()
 
+function(fw_malloc_alignment out)
+  set(getmallocalign "
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+static size_t get_alignment(ptrdiff_t p)
+{
+  size_t i;
+  for (i = 1; i < 8 * sizeof(ptrdiff_t); ++i) {
+    if (p % (1 << i)) {
+      return  1 << (i - 1);
+    }
+  }
+}
+
+int main()
+{
+  size_t i, al = 8 * sizeof(ptrdiff_t), cural = 0;
+  void* p;
+  for (i = 0; i < 1024; ++i) {
+    p = malloc(i);
+    cural = get_alignment((ptrdiff_t) p);
+    al = al < cural ? al : cural;
+  }
+  printf(\"%llu\", (unsigned long long) al);
+  return 0;
+}
+")
+  file(WRITE "${CMAKE_BINARY_DIR}/getmallocalign/main.c" "${getmallocalign}")
+  enable_language(C)
+  try_run(
+    run_result_unused
+    compile_result_unused
+    "${CMAKE_BINARY_DIR}/getmallocalign"
+    "${CMAKE_BINARY_DIR}/getmallocalign/main.c"
+    RUN_OUTPUT_VARIABLE malloc_alignment)
+  set(${out} ${malloc_alignment} PARENT_SCOPE)
+endfunction()
+
+
 function(fw_whoami out_var)
   if(NOT UNIX)
     message(FATAL_ERROR "Platform is not supported")

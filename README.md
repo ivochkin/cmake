@@ -25,6 +25,7 @@ Functions:
 * `fw_page_size`
 * `fw_stack_size`
 * `fw_guard_size`
+* `fw_malloc_alignment`
 * `fw_whoami`
 * `fw_uname`
 * `fw_date`
