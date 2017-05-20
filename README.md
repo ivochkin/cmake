@@ -38,3 +38,4 @@ Functions:
 * `fw_c99`
 * `fw_c11`
 * `fw_default_build_type`
+* `fw_forbid_in_source_build`
