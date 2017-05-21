@@ -602,10 +602,10 @@ function(fw_c11)
 endfunction()
 
 function(fw_default_build_type type)
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE ${type} CACHE STRING
-    "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel." FORCE PARENT_SCOPE)
-endif()
+  if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "${type}" CACHE STRING
+      "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel." FORCE)
+  endif()
 endfunction()
 
 function(fw_forbid_in_source_build)
