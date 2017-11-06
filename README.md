@@ -16,6 +16,7 @@ Contains a bunch of useful functions that extend CMake functionality and/or prov
 
 Functions:
 
+* `fw_join`
 * `fw_c_flags`
 * `fw_cxx_flags`
 * `fw_c_cxx_flags`
@@ -39,3 +40,4 @@ Functions:
 * `fw_c11`
 * `fw_default_build_type`
 * `fw_forbid_in_source_build`
+* `fw_graphviz`

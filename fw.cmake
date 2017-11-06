@@ -2,6 +2,21 @@ include(CMakeParseArguments)
 
 find_package(Git)
 
+function(fw_join prefix glue suffix out)
+  set(res "${prefix}")
+  set(first TRUE)
+  foreach(i ${ARGN})
+    if(first)
+      set(res "${res}${i}")
+      set(first FALSE)
+    else()
+      set(res "${res}${glue}${i}")
+    endif()
+  endforeach()
+  set(res "${res}${suffix}")
+  set(${out} "${res}" PARENT_SCOPE)
+endfunction()
+
 function(fw_c_flags)
   if (NOT CMAKE_C_FLAGS)
     set(CMAKE_C_FLAGS "${ARGN}" PARENT_SCOPE)
@@ -524,7 +539,8 @@ function(fw_exports target exports_file)
   if(NOT(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
     message(FATAL_ERROR "Compiler is not supported")
   endif()
-  set(make_exports_sh_content "#!/usr/bin/env bash
+  set(make_exports_sh_content "\
+#!/usr/bin/env bash
 
 compiler=$1
 library=$2
@@ -613,4 +629,30 @@ function(fw_forbid_in_source_build)
   if("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_BINARY_DIR}")
     message(FATAL_ERROR "\nIn-source builds are not allowed.\nTry 'mkdir build && cd build && cmake ..'")
   endif()
+endfunction()
+
+function(fw_graphviz)
+  cmake_parse_arguments("FW_GRAPHVIZ" "" "" "IGNORE" ${ARGN})
+  if(FW_GRAPHVIZ_IGNORE)
+    fw_join("(" ")|(" ")" ignore_regexp ${FW_GRAPHVIZ_IGNORE})
+  endif()
+  set(options_file "\
+set(GRAPHVIZ_GRAPH_NAME @CMAKE_PROJECT_NAME@)
+set(GRAPHVIZ_GRAPH_HEADER)
+set(GRAPHVIZ_NODE_PREFIX)
+set(GRAPHVIZ_EXECUTABLES)
+set(GRAPHVIZ_STATIC_LIBS)
+set(GRAPHVIZ_SHARED_LIBS)
+set(GRAPHVIZ_MODULE_LIBS FALSE)
+set(GRAPHVIZ_EXTERNAL_LIBS FALSE)
+set(GRAPHVIZ_IGNORE_TARGETS \"@ignore_regexp@\")
+set(GRAPHVIZ_GENERATE_PER_TARGET FALSE)
+set(GRAPHVIZ_GENERATE_DEPENDERS FALSE)
+")
+  set(options_in "${CMAKE_BINARY_DIR}/fw/CMakeGraphVizOptions.cmake.in")
+  file(WRITE ${options_in} "${options_file}")
+  configure_file(${options_in} "${CMAKE_BINARY_DIR}/CMakeGraphVizOptions.cmake" @ONLY)
+  add_custom_target(graph
+    "${CMAKE_COMMAND}" "--graphviz=${CMAKE_PROJECT_NAME}.dot" .
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
 endfunction()
