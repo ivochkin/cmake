@@ -41,3 +41,5 @@ Functions:
 * `fw_default_build_type`
 * `fw_forbid_in_source_build`
 * `fw_graphviz`
+* `fw_target_sources`
+* `fw_gtest`
