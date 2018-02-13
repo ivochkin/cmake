@@ -6,11 +6,13 @@
 
 
 find_path(ONLYOFFICE_INCLUDE_DIR NAMES
+  onlyoffice/Common/OfficeDefines.h
   onlyoffice/XlsxSerializerCom/Common/Common.h
   onlyoffice/ASCOfficeDocxFile2/DocWrapper/DocxSerializer.h
   onlyoffice/ASCOfficePPTXFile/ASCOfficePPTXFile.h
 )
 
+find_library(ONLYOFFICE_LIBRARY NAMES onlyoffice)
 find_library(ONLYOFFICE_LIBRARY_DESKTOP NAMES onlyofficedesktop)
 find_library(ONLYOFFICE_LIBRARY_DOCX2 NAMES onlyofficedocx2)
 find_library(ONLYOFFICE_LIBRARY_PPTX NAMES onlyofficepptx)
@@ -19,6 +21,7 @@ find_library(ONLYOFFICE_LIBRARY_UNICODE NAMES onlyofficeunicode)
 find_library(ONLYOFFICE_LIBRARY_UTILS NAMES onlyofficeutils)
 
 find_package_handle_standard_args(OnlyOffice DEFAULT_MSG
+  ONLYOFFICE_LIBRARY
   ONLYOFFICE_INCLUDE_DIR
   ONLYOFFICE_LIBRARY_DESKTOP
   ONLYOFFICE_LIBRARY_DOCX2
@@ -30,6 +33,7 @@ find_package_handle_standard_args(OnlyOffice DEFAULT_MSG
 
 if(ONLYOFFICE_FOUND)
   set(ONLYOFFICE_LIBRARIES
+    ${ONLYOFFICE_LIBRARY}
     ${ONLYOFFICE_LIBRARY_DESKTOP}
     ${ONLYOFFICE_LIBRARY_DOCX2}
     ${ONLYOFFICE_LIBRARY_PPTX}
