@@ -544,7 +544,6 @@ function(fw_exports target exports_file)
 #!/usr/bin/env bash
 
 compiler=$1
-library=$2
 
 case \"$compiler\" in
 \"clang\")
@@ -555,7 +554,7 @@ case \"$compiler\" in
   done
 ;;
 \"gcc\")
-  echo \"$library {\"
+  echo \"{\"
   echo \"  global:\"
   while read -r; do
     if [ -n \"$REPLY\" ]; then
@@ -581,11 +580,11 @@ esac
   set(dot_version_file ${CMAKE_CURRENT_BINARY_DIR}/${target}.version)
   set(dot_map_file ${CMAKE_CURRENT_BINARY_DIR}/${target}.map)
   execute_process(
-    COMMAND bash ${make_exports_sh} gcc ${target}
+    COMMAND bash ${make_exports_sh} gcc
     INPUT_FILE ${exports_file}
     OUTPUT_FILE ${dot_version_file})
   execute_process(
-    COMMAND bash ${make_exports_sh} clang ${target}
+    COMMAND bash ${make_exports_sh} clang
     INPUT_FILE ${exports_file}
     OUTPUT_FILE ${dot_map_file})
   if(CMAKE_COMPILER_IS_GNUCXX)
