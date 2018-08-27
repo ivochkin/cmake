@@ -1,0 +1,7 @@
+include(FindPackageHandleStandardArgs)
+
+find_path(ARGTABLE_INCLUDE_DIRS NAMES argtable.h argtable2.h argtable3.h)
+find_library(ARGTABLE_LIBRARIES NAMES argtable argtable2 argtable3)
+
+find_package_handle_standard_args(yaml DEFAULT_MSG ARGTABLE_LIBRARIES ARGTABLE_INCLUDE_DIRS)
+mark_as_advanced(ARGTABLE_INCLUDE_DIRS ARGTABLE_LIBRARIES)
