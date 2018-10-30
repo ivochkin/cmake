@@ -587,12 +587,11 @@ esac
     COMMAND bash ${make_exports_sh} clang
     INPUT_FILE ${exports_file}
     OUTPUT_FILE ${dot_map_file})
-  if(CMAKE_COMPILER_IS_GNUCXX)
-    set_target_properties(${target} PROPERTIES LINK_FLAGS "-Wl,--version-script=${dot_version_file}")
-  endif()
   # Recent versions of Clang on Linux, at least on Ubuntu, does not support -exported_symbols_list
   if(APPLE AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set_target_properties(${target} PROPERTIES LINK_FLAGS "-Wl,-exported_symbols_list,${dot_map_file}")
+  else()
+    set_target_properties(${target} PROPERTIES LINK_FLAGS "-Wl,--version-script=${dot_version_file}")
   endif()
 endfunction()
 
